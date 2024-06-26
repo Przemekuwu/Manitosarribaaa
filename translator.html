@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traductor - Manitos Arriba</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="img/manitosarriba-removebg-preview.png" alt="Logo">
+        </div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="class.html">Clases</a></li>
+                <li><a href="note.html">Notas</a></li>
+                <li><a href="configuration.html">Configuraciones</a></li>
+            </ul>
+        </nav>
+        <div class="profile-icon">
+            <img src="img/login.png" alt="Profile Icon">
+        </div>
+    </header>
+    <main>
+        <section id="translator" class="translator">
+            <h2>Traductor</h2>
+            <form id="translateForm">
+                <textarea id="textToTranslate" placeholder="Escriba el texto que desea traducir..."></textarea>
+                <button type="button" onclick="translateText()">Traducir</button>
+            </form>
+            <div id="translationResult">
+                <img src="img/resultado.gif" alt="Resultado de la traducción en lenguaje de señas">
+            </div>
+            <div>
+                <button type="button" onclick="chooseOption()">
+                    <img src="img/camara.png" alt="Cargar imagen" style="width: 24px; height: 24px;">
+                </button>
+                <input type="file" id="fileInput" accept="image/*" style="display:none;" onchange="loadImage(event)">
+                <video id="video" width="300" height="200" autoplay style="display:none;"></video>
+                <button id="captureButton" type="button" onclick="captureImage()" style="display:none;">
+                    <img src="img/camara.png" alt="Capturar imagen" style="width: 24px; height: 24px;">
+                </button>
+                <canvas id="canvas" style="display:none;"></canvas>
+            </div>
+        </section>
+    </main>
+    <footer>
+        © 2024 Mi Landing Page. Todos los derechos reservados.
+    </footer>
+    <script>
+        function translateText() {
+            const text = document.getElementById('textToTranslate').value;
+            const translationResult = document.getElementById('translationResult');
+            
+            // Simulación de la traducción. Aquí puedes integrar tu lógica de traducción real.
+            translationResult.innerHTML = '<img src="img/respuesta.gif" alt="Resultado de la traducción en lenguaje de señas">';
+        }
+
+        function chooseOption() {
+            const choice = confirm("¿Quieres tomar una foto o cargar una imagen?\nPresiona OK para tomar una foto.\nPresiona Cancelar para cargar una imagen.");
+            if (choice) {
+                startCamera();
+            } else {
+                document.getElementById('fileInput').click();
+            }
+        }
+
+        function startCamera() {
+            const video = document.getElementById('video');
+            const captureButton = document.getElementById('captureButton');
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    video.srcObject = stream;
+                    video.style.display = 'block';
+                    captureButton.style.display = 'block';
+                })
+                .catch(err => {
+                    console.error("Error accessing the camera: ", err);
+                });
+        }
+
+        function captureImage() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const translationResult = document.getElementById('translationResult');
+            translationResult.innerHTML = `<img src="${canvas.toDataURL('image/png')}" alt="Imagen capturada">`;
+
+            // Detener el stream de la cámara después de capturar la imagen
+            video.srcObject.getTracks().forEach(track => track.stop());
+            video.style.display = 'none';
+            document.getElementById('captureButton').style.display = 'none';
+        }
+
+        function loadImage(event) {
+            const file = event.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function() {
+                const translationResult = document.getElementById('translationResult');
+                translationResult.innerHTML = `<img src="${reader.result}" alt="Imagen cargada">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>
